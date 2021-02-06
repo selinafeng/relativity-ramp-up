@@ -1,5 +1,4 @@
 import express from 'express';
-import Influx from 'influx';
 
 const app = express()
 const port = 3000
