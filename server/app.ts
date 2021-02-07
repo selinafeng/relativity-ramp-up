@@ -12,15 +12,11 @@ const queryApi = client.getQueryApi(org)
 export const app = express()
 const port = 3000
 
-const buildErrorJson = (msg: string) => {
-  statusCode: 400
-  message: msg
-}
-
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
+
 app.get('/get-all-altitude', async (req, res) => {
   const fluxQuery =`
     from(bucket: "relativity-ramp-up")
@@ -29,33 +25,56 @@ app.get('/get-all-altitude', async (req, res) => {
   `
   try {
     const rows = await queryApi.collectRows(fluxQuery)
-    console.log(rows)
     res.json(rows)
   } catch(e) {
-    res.json(buildErrorJson(e))
+    console.log(e)
   }
 })
 
+// TODO: FIX ME
 app.get('/aggregate-engines', async (req, res) => {
-  console.log("hello")
   const fluxQuery =`
     from(bucket: "relativity-ramp-up")
     |> range(start: 0)
-    |> filter(fn: (r) => r._measurement == "altitude")
+    |> aggregateWindow(every: 1s, fn: mean)
   `
   try {
     const rows = await queryApi.collectRows(fluxQuery)
-    console.log(rows)
     res.json(rows)
   } catch(e) {
-    res.json(buildErrorJson(e))
+    console.log(e)
   }
 })
 
-app.get('/get-all-altitude', async (req, res) => {
-	const fluxQuery = 'YOUR QUERY HERE'
-	res.json(await queryApi.collectRows(fluxQuery))
+app.get('/calculate-acceleration', async (req, res) => {
+  const fluxQuery =`
+    from(bucket: "relativity-ramp-up")
+    |> range(start: 0)
+    |> filter(fn: (r) => r._measurement == "speed")
+  `
+  try {
+    const rows = await queryApi.collectRows(fluxQuery)
+    console.log(rows[0])
+    const accelerationRows = []
+    for (let i = 1; i < rows.length; i += 1) {
+      const currRow: any = rows[i]
+      const prevRow: any = rows[i - 1]
+      const deltaV = currRow["_value"] - prevRow["_value"]
+      const deltaT = 10 // In milliseconds. Using assumption from Notion.
+
+      accelerationRows.push({
+        time: prevRow["_time"],
+        acceleration: deltaV / deltaT
+      })
+
+    }
+    res.json(accelerationRows)
+  } catch(e) {
+    console.log(e)
+  }
 })
+
+
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
