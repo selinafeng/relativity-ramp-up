@@ -50,7 +50,7 @@ app.get('/engines', async (req, res) => {
   let numEntries: number = 0;
   let entry: { [key: string]: string | number } | null = null;
 
-  // length = 40800 points
+  // length = 40800 points, takes ~2 min
   for (let i = 0; i < Object.keys(data).length; i += 1) {
     let time = data[i]['_time']
     let curr: number = +time.toString().substring(secIndex, secIndex + secLength)
@@ -76,7 +76,10 @@ app.get('/engines', async (req, res) => {
   res.json(result)
 })
 
-
+app.get('/acceleration', async (req, res) => {
+  const fluxQuery = 'from(bucket: "relativity-ramp-up") |> range(start: 0) |> filter(fn: (r) => r._measurement == "speed") |> derivative(unit: 1s)'
+  res.json(await queryApi.collectRows(fluxQuery));
+})
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
