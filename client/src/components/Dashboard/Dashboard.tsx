@@ -1,14 +1,9 @@
-import {
-    Charts,
-    ChartContainer,
-    ChartRow,
-    YAxis,
-    LineChart
-} from 'react-timeseries-charts';
-import { TimeSeries, TimeEvent, Index} from "pondjs";
 
+import { TimeSeries, TimeEvent} from "pondjs";
 import React from 'react';
-import { time } from 'console';
+import Chart from '../Chart';
+import './Dashboard.css';
+import loader from '../../assets/loader.gif';
 
 
 
@@ -22,7 +17,6 @@ function Dashboard() {
       [1400425948000, 2000]]
 });
   const [loaded, setLoaded] = React.useState(false);
-  const [data1, setData1] = React.useState({});
   const [speedSeries, setSpeedSeries] = React.useState(tempSeries);
   const [altSeries, setAltSeries] = React.useState(tempSeries);
   const [accSeries, setAccSeries] = React.useState(tempSeries);
@@ -100,47 +94,18 @@ function formatData(data: FlightData[]) {
 
   function renderChart() {
     if (loaded) {
-      return(<div><ChartContainer timeRange={speedSeries.timerange()} width={800}>
-      <ChartRow height="200">
-        <YAxis id="axis1" label="Speed" min={0} max={15000} width="60" type="linear"/>
-        <Charts>
-          <LineChart axis="axis1" series={speedSeries} column={["value"]}/>
-        </Charts>
-      </ChartRow>
-    </ChartContainer>
-    
-    <ChartContainer timeRange={altSeries.timerange()} width={800}>
-      <ChartRow height="200">
-        <YAxis id="axis1" label="Altitude" min={0} max={150000000} width="60" type="linear"/>
-        <Charts>
-          <LineChart axis="axis1" series={altSeries} column={["value"]}/>
-        </Charts>
-      </ChartRow>
-    </ChartContainer>
-    
-    <ChartContainer timeRange={accSeries.timerange()} width={800}>
-      <ChartRow height="200">
-        <YAxis id="axis1" label="Acceleration" min={-1000} max={1000} width="60" type="linear"/>
-        <Charts>
-          <LineChart axis="axis1" series={accSeries} column={["value"]}/>
-        </Charts>
-      </ChartRow>
-    </ChartContainer>
-
-    <ChartContainer timeRange={acc2Series.timerange()} width={800}>
-    <ChartRow height="200">
-      <YAxis id="axis1" label="Acceleration 2" min={-10000} max={15000} width="60" type="linear"/>
-      <Charts>
-        <LineChart axis="axis1" series={acc2Series} column={["value"]}/>
-      </Charts>
-    </ChartRow>
-  </ChartContainer></div>);
+      return(<div className="all-charts">
+        <Chart className="chart" series={speedSeries} min={0} max={15000} label="Speed"/>
+        <Chart className="chart" series={altSeries} min={0} max={150000000} label="Altitude" />
+        <Chart className="chart" series={accSeries} min={-1000} max={1000} label="Acceleration"/>
+        {/* <Chart series={acc2Series} min={-15000} max={15000} label="Acceleration2"/> */}
+        </div>);
     } else {
-      return<div>loading</div>;
+      return<img className="loader" src={loader} alt="loader" />
     }
   }
 
-  return(<div>{renderChart()}</div>
+  return(<div className="container"><div className="flex-container">{renderChart()}</div></div>
     
   )}
 
