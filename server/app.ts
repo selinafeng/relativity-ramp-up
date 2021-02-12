@@ -27,7 +27,7 @@ app.use((req, res, next) => {
 
 app.get('/', async (req, res) => {
   try {
-    const fluxQuery = 'from(bucket:"' + bucket + '") |> range(start: -500h) |> map(fn:(r) => ({ r with _time: uint(v: r._time) }))'
+    const fluxQuery = 'from(bucket:"' + bucket + '") |> range(start: -200h) |> map(fn:(r) => ({ r with _time: uint(v: r._time) }))'
     const query = res.json(await queryApi.collectRows(fluxQuery))
     res.send(query)
   } catch (error) {
@@ -38,7 +38,7 @@ app.get('/', async (req, res) => {
 
 app.get('/altitude', async (req, res) => {
   try {
-    const fluxQuery = 'from(bucket:"' + bucket + '") |> range(start: -500h)  |> filter(fn: (r) => r._measurement == "altitude") |> map(fn:(r) => ({ r with _time: uint(v: r._time) }))'
+    const fluxQuery = 'from(bucket:"' + bucket + '") |> range(start: 0)  |> filter(fn: (r) => r._measurement == "altitude") '
     const query = res.json(await queryApi.collectRows(fluxQuery))
     res.send(query)
   } catch (error) {
@@ -49,7 +49,7 @@ app.get('/altitude', async (req, res) => {
 
 app.get('/engine', async (req, res) => {
   try {
-    const fluxQuery = 'from(bucket:"' + bucket + '") |> range(start: -500h)  |> filter(fn: (r) => r._measurement == "engine-1" or r._measurement == "engine-2" or r._measurement == "engine-3") |> window(every: 1s) |> mean() |> map(fn:(r) => ({ r with _time: uint(v: r._time) }))'
+    const fluxQuery = 'from(bucket:"' + bucket + '") |> range(start: 0)  |> filter(fn: (r) => r._measurement == "engine-1" or r._measurement == "engine-2" or r._measurement == "engine-3") |> window(every: 1s) |> mean() '
     const query = res.json(await queryApi.collectRows(fluxQuery))
     res.send(query)
   } catch (error) {
@@ -60,7 +60,7 @@ app.get('/engine', async (req, res) => {
 
 app.get('/speed', async (req, res) => {
   try {
-    const fluxQuery = 'from(bucket:"' + bucket + '") |> range(start: -500h)  |> filter(fn: (r) => r._measurement == "speed") |> map(fn:(r) => ({ r with _time: uint(v: r._time) }))'
+    const fluxQuery = 'from(bucket:"' + bucket + '") |> range(start: 0)  |> filter(fn: (r) => r._measurement == "speed")'
     const query = res.json(await queryApi.collectRows(fluxQuery))
     res.send(query)
   } catch (error) {
@@ -71,7 +71,7 @@ app.get('/speed', async (req, res) => {
 
 app.get('/acceleration', async (req, res) => {
   try {
-    const fluxQuery = 'from(bucket:"' + bucket + '") |> range(start: -500h)  |> filter(fn: (r) => r._measurement == "speed") |> difference(nonNegative: false, keepFirst: true) |> map(fn:(r) => ({ r with _time: uint(v: r._time) }))'
+    const fluxQuery = 'from(bucket:"' + bucket + '") |> range(start: 0)  |> filter(fn: (r) => r._measurement == "speed") |> difference(nonNegative: false, keepFirst: true)'
     const query = res.json(await queryApi.collectRows(fluxQuery))
     res.send(query)
   } catch (error) {
@@ -82,7 +82,7 @@ app.get('/acceleration', async (req, res) => {
 
 app.get('/acceleration2', async (req, res) => {
   try {
-    const fluxQuery = 'from(bucket:"' + bucket + '") |> range(start: -500h)  |> filter(fn: (r) => r._measurement == "speed") |> derivative(unit: 1s, nonNegative: true) |> map(fn:(r) => ({ r with _time: uint(v: r._time) }))'
+    const fluxQuery = 'from(bucket:"' + bucket + '") |> range(start: 0)  |> filter(fn: (r) => r._measurement == "speed") |> derivative(unit: 1s, nonNegative: true)'
     const query = res.json(await queryApi.collectRows(fluxQuery))
     res.send(query)
   } catch (error) {

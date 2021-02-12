@@ -5,23 +5,30 @@ import {
     YAxis,
     LineChart
 } from 'react-timeseries-charts';
-import { TimeSeries, Index } from "pondjs";
+import { TimeSeries, TimeEvent, Index} from "pondjs";
 
-/* import axios from 'axios'; */
 import React from 'react';
+import { time } from 'console';
+
 
 
 function Dashboard() {
-  async function http<T>(request: RequestInfo): Promise<T> {
-    const res = await fetch(request)
-    if(!res) {
-      throw new Error("response not ok")
-    }
-    // may error if there is no body, return empty array
-    return res.json().catch(() => ({}))
-  }
-  
-  type FlightData = {
+
+  const tempSeries = new TimeSeries({
+    name: "temp",
+    columns: ["time", "value"],
+    points: [
+      [1400425947000, 1000],
+      [1400425948000, 2000]]
+});
+  const [loaded, setLoaded] = React.useState(false);
+  const [data1, setData1] = React.useState({});
+  const [speedSeries, setSpeedSeries] = React.useState(tempSeries);
+  const [altSeries, setAltSeries] = React.useState(tempSeries);
+  const [accSeries, setAccSeries] = React.useState(tempSeries);
+  const [acc2Series, setAcc2Series] = React.useState(tempSeries);
+
+  interface FlightData {
     result: string
     table: number
     _start: any
@@ -33,69 +40,108 @@ function Dashboard() {
     _flight: string
     _host: string
   }
+ 
 
-  
-    const data = http<FlightData[]>("http://localhost:8000/speed");
-    const series1 = data.then(data => formatData(data))
-    .then(data => new TimeSeries(data));
-    console.log(series1);
-
-  function formatData(data: FlightData[]) {
-    const newData = [];
-    for (let i = 0; i < data.length; i++) {
-      newData[i] = [data[i]["_time"], data[i]["_value"]];
-    };
-    console.log(newData);
-    console.log(typeof(newData[0]));
+  React.useEffect(() => {
     
-    return {
-      name: 'Speed',
-      columns: ["time", "speed"],
-      points: newData, 
-    };
+  const fetchData = async (url: RequestInfo): Promise<FlightData[]> => {
+    const response = await fetch(url)
+    const data = response.json()
+    console.log(data);
+    return data
+}
+
+  const runAsyncFunctions = async () => {
+    try {
+        const speedSeriesData = await fetchData('http://localhost:8000/speed')
+        const altSeriesData = await fetchData('http://localhost:8000/altitude')
+        const accSeriesData = await fetchData('http://localhost:8000/acceleration')
+        const acc2SeriesData = await fetchData('http://localhost:8000/acceleration2')
+        let formattedData = formatData(speedSeriesData);
+        setSpeedSeries(new TimeSeries({ name: 'Speed',
+        columns: ["time", "value"],
+        events: formattedData,
+        }));
+        formattedData = formatData(altSeriesData);
+        setAltSeries(new TimeSeries({ name: 'Altitude',
+        columns: ["time", "value"],
+        events: formattedData,
+        }));
+        formattedData = formatData(accSeriesData);
+        setAccSeries(new TimeSeries({ name: 'Acceleration',
+        columns: ["time", "value"],
+        events: formattedData,
+        }));
+        formattedData = formatData(acc2SeriesData);
+        setAcc2Series(new TimeSeries({ name: 'Acceleration 2',
+        columns: ["time", "value"],
+        events: formattedData,
+        }));
+        
+        setLoaded(true);
+        console.log("success?")
+    } catch (error) {
+        console.log(error)
+    }
+}
+runAsyncFunctions();
+  });
+  
+
+function formatData(data: FlightData[]) {
+  const newData = [];
+  for (let i = 0; i < data.length; i++) {
+    let tempTime = new Date(data[i]["_time"]);
+    newData[i] = new TimeEvent(tempTime, {value: data[i]["_value"]});
+  };
+  return newData;
+}
+
+
+  function renderChart() {
+    if (loaded) {
+      return(<div><ChartContainer timeRange={speedSeries.timerange()} width={800}>
+      <ChartRow height="200">
+        <YAxis id="axis1" label="Speed" min={0} max={15000} width="60" type="linear"/>
+        <Charts>
+          <LineChart axis="axis1" series={speedSeries} column={["value"]}/>
+        </Charts>
+      </ChartRow>
+    </ChartContainer>
+    
+    <ChartContainer timeRange={altSeries.timerange()} width={800}>
+      <ChartRow height="200">
+        <YAxis id="axis1" label="Altitude" min={0} max={150000000} width="60" type="linear"/>
+        <Charts>
+          <LineChart axis="axis1" series={altSeries} column={["value"]}/>
+        </Charts>
+      </ChartRow>
+    </ChartContainer>
+    
+    <ChartContainer timeRange={accSeries.timerange()} width={800}>
+      <ChartRow height="200">
+        <YAxis id="axis1" label="Acceleration" min={-1000} max={1000} width="60" type="linear"/>
+        <Charts>
+          <LineChart axis="axis1" series={accSeries} column={["value"]}/>
+        </Charts>
+      </ChartRow>
+    </ChartContainer>
+
+    <ChartContainer timeRange={acc2Series.timerange()} width={800}>
+    <ChartRow height="200">
+      <YAxis id="axis1" label="Acceleration 2" min={-10000} max={15000} width="60" type="linear"/>
+      <Charts>
+        <LineChart axis="axis1" series={acc2Series} column={["value"]}/>
+      </Charts>
+    </ChartRow>
+  </ChartContainer></div>);
+    } else {
+      return<div>loading</div>;
+    }
   }
 
-  /* console.log('here it is:' + Object.values(newData)); */
- /*  const speed = fetch('http://localhost:8000/speed', { method: 'GET'})
-  .then(res => res.json())
-  .then(res => console.log(res)) */
-
-  /* .then(res => res.text())          // convert to plain text
-  .then(text => console.log(text))   */ 
-
-  
-  /*  const data1 = {
-    name: 'Speed',
-    columns: ["time", "speed"],
-    points: newData, 
-  }; */
-  const data2 = {
-    name: 'Demanda (Wh) Galpon 2',
-    columns: ["time", "Valor"],
-    points: [
-      [1400425947000, 1000],
-      [1400425948000, 2000],
-      [1400425949000, 3000],
-      [1400425950000, 1500],
-      [1400425951000, 2000],
-    ]
-  };
-/*   const series1 = new TimeSeries(data1); */
-  const series2 = new TimeSeries(data2);
-
-  return(
-       <ChartContainer timeRange={series1.timerange()} width={800}>
-        <ChartRow height="200">
-          <YAxis id="axis1" label="AsadsjkD" min={0.5} max={1.5} width="60" type="linear" format="$,.2f"/>
-          <Charts>
-            <LineChart axis="axis1" series={series1} column={["Valor"]}/>
-            <LineChart axis="axis2" series={series2} column={["Valor"]}/>
-          </Charts>
-          <YAxis id="axis2" label="Euro" min={0.5} max={1.5} width="80" type="linear" format="$,.2f"/>
-        </ChartRow>
-      </ChartContainer>
-  
-
+  return(<div>{renderChart()}</div>
+    
   )}
 
 export default Dashboard;
