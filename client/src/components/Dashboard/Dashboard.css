@@ -1,0 +1,20 @@
+body {
+  background-color: rgb(15, 18, 27);
+}
+
+.container {
+  width: 100%;
+  height: 100%;
+}
+
+.all-charts,
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+  margin: auto;
+  min-height: 100vh;
+  width: auto;
+}
