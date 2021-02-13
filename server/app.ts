@@ -30,20 +30,60 @@ app.get("/", (req, res) => {
 // flight (tag): 1,
 // value (field): 2420.76
 
+const relativityBucket = 'from(bucket: "relativity-ramp-up")';
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
 
-app.get("/schema", async (req, res) => {
+//get altitude data
+app.get("/altitude", async (req, res) => {
   try {
     const fluxQuery =
-      "from(bucket: " +
-      '"relativity-ramp-up"' +
-      ")" +
+      relativityBucket +
       "|> range(start: 2021-02-05T21:13:29.690Z, stop: 2021-02-05T21:18:29.690Z)" +
       "|> filter(fn: (r) =>" +
       'r._measurement == "speed")';
     res.json(await queryApi.collectRows(fluxQuery));
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+//get engine data
+app.get("/engines", async (req, res) => {
+  try {
+    const fluxQuery =
+      relativityBucket +
+      "|> range(start: 2021-02-05T21:13:29.690Z, stop: 2021-02-05T21:18:29.690Z)" +
+      "|> filter(fn: (r) =>" +
+      '(r._measurement == "engine-1" or ' +
+      'r._measurement == "engine-2" or ' +
+      'r._measurement == "engine-3"))' +
+      "|> window(every: 1s)" +
+      "|> mean()";
+
+    var dataSet = await queryApi.collectRows(fluxQuery);
+
+    res.json(dataSet);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+//get acceleration
+app.get("/accel", async (req, res) => {
+  try {
+    const fluxQuery =
+      relativityBucket +
+      "|> range(start: 2021-02-05T21:13:29.690Z, stop: 2021-02-05T21:18:29.690Z)" +
+      "|> filter(fn: (r) =>" +
+      'r._measurement == "speed")' +
+      "|> derivative(unit: 1s)";
+
+    var dataSet = await queryApi.collectRows(fluxQuery);
+
+    res.json(dataSet);
   } catch (error) {
     console.log(error);
   }
