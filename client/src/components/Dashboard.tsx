@@ -8,6 +8,7 @@ import {
 } from "react-timeseries-charts";
 import { Component } from "react";
 import { ReactComponent } from "*.svg";
+import { Http2ServerRequest } from "http2";
 
 export default class DashBoard extends Component<
   {},
@@ -21,21 +22,33 @@ export default class DashBoard extends Component<
   }
 
   //run once when the component is first rendered
-  componentDidMount() {
-    const response: dataRocket = dataChangeType(
-      fetch("http://localhost:3000/engines")
-    );
+  async componentDidMount() {
+    console.log("ack");
+    const data = await this.http("http://localhost:8000/engines");
 
-    this.setState({ result: response });
+    // const response = await dataChangeType(
+    //   fetch("http://localhost:8000/engines")
+    // );
+
+    console.log(data);
+
+    this.setState({ result: data });
   }
-
   //put graphs here
   render() {
-    return <div>{this.state.result}</div>;
+    return <div>Hello</div>;
+  }
+
+  //
+  async http(request: RequestInfo): Promise<any> {
+    const response = await fetch(request);
+    const body = await response.json();
+    return body;
   }
 }
 
 function dataChangeType(res: Promise<Response>) {
+  console.log(res);
   var x: dataRocket = {
     result: "dummy r",
     table: 1,

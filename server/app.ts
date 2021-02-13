@@ -12,9 +12,10 @@ const url = "https://us-west-2-1.aws.cloud2.influxdata.com";
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);
 export const app = express();
-const port = 3000;
+const port = 8000;
 
 app.get("/", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
   res.send("Hello Worlds!");
 });
 
@@ -44,6 +45,7 @@ app.get("/altitude", async (req, res) => {
       "|> range(start: 2021-02-05T21:13:29.690Z, stop: 2021-02-05T21:18:29.690Z)" +
       "|> filter(fn: (r) =>" +
       'r._measurement == "speed")';
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
     res.json(await queryApi.collectRows(fluxQuery));
   } catch (error) {
     console.log(error);
@@ -64,7 +66,7 @@ app.get("/engines", async (req, res) => {
       "|> mean()";
 
     var dataSet = await queryApi.collectRows(fluxQuery);
-
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
     res.json(dataSet);
   } catch (error) {
     console.log(error);
@@ -82,7 +84,7 @@ app.get("/accel", async (req, res) => {
       "|> derivative(unit: 1s)";
 
     var dataSet = await queryApi.collectRows(fluxQuery);
-
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
     res.json(dataSet);
   } catch (error) {
     console.log(error);
