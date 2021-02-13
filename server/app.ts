@@ -13,7 +13,7 @@ const queryApi = client.getQueryApi(org)
 // let startTime = 'duration(v: uint(v: now()) - uint(v: 2021-02-05T21:13:29.690Z))'
 
 export const app = express()
-const port = 3000
+const port = 8000;
 
 // Default 
 app.get('/', (req, res) => {
@@ -29,6 +29,7 @@ app.get('/schema', async (req, res) => {
 
 // Endpoint that gets all data from the altitude measurement 
 app.get('/altitude', async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
   const fluxQuery = `from(bucket: "relativity-ramp-up") 
                         |> range(start: -500h)
                         |> filter(fn: (r) => r._measurement == "altitude")`
