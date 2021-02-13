@@ -1,3 +1,5 @@
+import React from "react";
+import { TimeSeries } from "pondjs";
 import {
     Charts,
     ChartContainer,
@@ -8,36 +10,66 @@ import {
 
 function Dashboard() {
 
+    const [data, setData] = React.useState(null);
+    const [loaded, setLoaded] = React.useState(false);
+
     // Format of data from endpoint 
-    interface data {
-        _result: string
-        table: number
-        start: string
-        stop: string
-        value: number,
-        field: string
-        measurement: string
-        flight: string
-        host: string
+    interface Data {
+        result: string;
+        table: number;
+        _start: string;
+        _stop: string;
+        _time: number;
+        _value: number;
+        _field: string;
+        _measurement: string;
+        _flight: string;
+        _host: string;
     }
 
-    async function getData() {
-        const response = await fetch(
-            "https://jsonplaceholder.typicode.com/todos"
-        );
-        const body = await response.json();
-        return body;
+    interface HttpResponse<T> extends Response {
+        parsedBody?: T;
     }
 
-    function rawToFormattedData(res: Response) {
+    // Retrieves data; parses body 
+    async function http<T>(
+        request: RequestInfo
+    ): Promise<HttpResponse<T>> {
+        const response: HttpResponse<T> = await fetch(request);
+        try {
+            response.parsedBody = await response.json();
+        } catch (ex) { }
 
+        if (!response.ok) {
+            throw new Error(response.statusText);
+        }
+        return response;
     }
+
+    // Consumer 
+    async function getData(url: string) {
+        let response: HttpResponse<Data[]>;
+        try {
+            response = await http<Data[]>(url);
+            console.log("response", response);
+            return data;
+        } catch (response) {
+            console.log("Error: ", response);
+        }
+    }
+
+    getData("http://localhost:8000/altitude");
 
     return (
-        // <div>Your visualizations go here</div>
-        getData()
+        <div>
+            <h3>
+                Visualization
+      </h3>
+            {/* {getData()} */}
+        </div>
+        // getData()
     )
 
 }
 
-export default Dashboard;
+export default Dashboard; 
