@@ -14,7 +14,7 @@ const queryApi = client.getQueryApi(org);
 export const app = express();
 const port = 8000;
 
-app.get("/", async (req, res) => {
+app.get("/buckets", async (req, res) => {
   try {
     const fluxQuery = "buckets()";
     res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
