@@ -63,7 +63,8 @@ app.get("/engines", async (req, res) => {
       'r._measurement == "engine-2" or ' +
       'r._measurement == "engine-3"))' +
       "|> window(every: 1s)" +
-      "|> mean()";
+      "|> mean()" +
+      '|> duplicate(column: "_start", as: "_time")';
 
     var dataSet = await queryApi.collectRows(fluxQuery);
     res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");

@@ -29,14 +29,22 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
   //run once when the component is first rendered
   async componentDidMount() {
     var altData = await this.http("http://localhost:8000/altitude");
+    var engData = await this.http("http://localhost:8000/engines");
+    var accelData = await this.http("http://localhost:8000/accel");
 
     //add altitude data
     var dictOfSeries = {};
     var altSeries = this.formatData(altData, "altitude");
     dictOfSeries["altitude"] = altSeries;
 
+    var engineSeries = this.formatData(engData, "engines");
+    dictOfSeries["engines"] = engineSeries;
+    console.log(engineSeries);
+
+    var accelSeries = this.formatData(accelData, "accel");
+    dictOfSeries["accel"] = accelSeries;
+
     this.setState({ result: dictOfSeries });
-    console.log(this.state.result);
   }
 
   //put graphs here
@@ -52,27 +60,74 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
       return (
         // takes a TimeRange object, need to figure out how to find it
         // t TimeRange = new TimeRanges
-        <ChartContainer
-          timeRange={this.state.result["altitude"].timerange()}
-          width={800}
-        >
-          <ChartRow height="200">
-            <YAxis
-              id="price"
-              label="Price ($)"
-              min={this.state.result["altitude"].min()}
-              max={this.state.result["altitude"].max()}
-              width="60"
-            />
-            <Charts>
-              <LineChart
-                axis="price"
-                series={this.state.result["altitude"]}
-                column={["time"]}
+        <div>
+          <ChartContainer
+            timeRange={this.state.result["altitude"].timerange()}
+            width={800}
+          >
+            <ChartRow height="200">
+              <YAxis
+                id="alt"
+                label="Altitude"
+                min={this.state.result["altitude"].min()}
+                max={this.state.result["altitude"].max()}
+                width="60"
               />
-            </Charts>
-          </ChartRow>
-        </ChartContainer>
+              <Charts>
+                <LineChart
+                  axis="alt"
+                  series={this.state.result["altitude"]}
+                  column={["time"]}
+                />
+              </Charts>
+            </ChartRow>
+          </ChartContainer>
+
+          {/* <ChartContainer
+            timeRange={this.state.result["engines"].timerange()}
+            width={800}
+          >
+            <ChartRow height="200">
+              <YAxis
+                id="engine"
+                label="Engine Values"
+                min={this.state.result["engines"].min()}
+                max={this.state.result["engines"].max()}
+                width="60"
+              />
+              <Charts>
+                <LineChart
+                  axis="engine"
+                  series={this.state.result["engines"]}
+                  column={["engines"]}
+                />
+              </Charts>
+            </ChartRow>
+          </ChartContainer> */}
+
+          <ChartContainer
+            timeRange={this.state.result["accel"].timerange()}
+            width={800}
+          >
+            <ChartRow height="200">
+              <YAxis
+                id="accel"
+                label="Acceleration Values"
+                min={this.state.result["accel"].min()}
+                max={this.state.result["accel"].max()}
+                width="60"
+              />
+              <Charts>
+                <LineChart
+                  axis="accel"
+                  series={this.state.result["accel"]}
+                  column={["accel"]}
+                />
+              </Charts>
+            </ChartRow>
+          </ChartContainer>
+
+        </div>
       );
     }
   }
@@ -87,8 +142,6 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
     //   points: data,
     // });
 
-    console.log(data);
-
     var events = data.map(
       (point) =>
         new TimeEvent(new Date(point["_time"]), {
@@ -96,12 +149,14 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
         })
     );
 
+    console.log(events);
+
     const series = new TimeSeries({
       name: nameP,
       events: events,
     });
     console.log("BELOW");
-    console.log(series);
+    console.log(data);
     console.log("ABOVE");
 
     //dummy data
