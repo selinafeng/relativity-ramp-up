@@ -5,17 +5,19 @@ import {
   ChartRow,
   YAxis,
   LineChart,
+  Resizable,
 } from "react-timeseries-charts";
 import { Component } from "react";
 import { ReactComponent } from "*.svg";
 import { Http2ServerRequest } from "http2";
 import React from "react";
-import { TimeSeries, Time, TimeRange } from "pondjs";
+import { TimeSeries, timeSeries, Time, TimeRange } from "pondjs";
 
 export default class DashBoard extends Component<
   {},
   { result: TimeSeries<Time> | null }
 > {
+  //don't need to touch this anymore!
   constructor(props) {
     super(props);
     this.state = {
@@ -23,28 +25,29 @@ export default class DashBoard extends Component<
     };
   }
 
+  //helper function that makes http get request
+  async http(request: RequestInfo): Promise<any> {
+    const response = await fetch(request);
+    const body = await response.json();
+    return body;
+  }
+
   //run once when the component is first rendered
   async componentDidMount() {
-    console.log("ack");
     var altData = await this.http("http://localhost:8000/altitude");
 
-    // const response = await dataChangeType(
-    //   fetch("http://localhost:8000/engines")
-    // );
-
-    var series: TimeSeries<Time> = this.formatData(altData, "altitude");
+    var series = this.formatData(altData, "altitude");
+    console.log(series.timerange());
     console.log(series);
 
-    this.setState({ result: altData });
+    this.setState({ result: series });
   }
+
   //put graphs here
   render() {
     // return <div>Hello</div>;
 
     //set up the timeRange
-    var beginTime: Time = new Time("2021-02-05T21:13:29.690Z");
-    var endTime: Time = new Time("2021-02-05T21:18:29.690");
-    var range: TimeRange = new TimeRange(beginTime, endTime);
 
     if (this.state.result == null) {
       return <div> Loading!</div>;
@@ -53,58 +56,85 @@ export default class DashBoard extends Component<
         // takes a TimeRange object, need to figure out how to find it
         // t TimeRange = new TimeRanges
 
-        <ChartContainer timeRange={range} width={800}>
-          <ChartRow height="200">
-            <YAxis id="axis1" label="AUD" min={0.5} max={1.5} width="60" />
-            <Charts>
-              <LineChart
-                axis="axis1"
-                series={this.state.result}
-                column={["aud"]}
-              />
-              <LineChart
-                axis="axis2"
-                series={this.state.result}
-                column={["euro"]}
-              />
-            </Charts>
-            <YAxis id="axis2" label="Euro" min={0.5} max={2.0} width="80" />
-          </ChartRow>
-        </ChartContainer>
+        // <ChartContainer timeRange={this.state.result.range()} width={800}>
+        //   <ChartRow height="200">
+        //     <YAxis id="axis1" label="VALUEEE" width="60" />
+        //     <Charts>
+        //       <LineChart
+        //         axis="axis1"
+        //         series={this.state.result}
+        //         column={["value"]}
+        //       />
+        //       <LineChart
+        //         axis="axis2"
+        //         series={this.state.result}
+        //         column={["value"]}
+        //       />
+        //     </Charts>
+        //     <YAxis id="axis2" label="VALUUEUEU" width="80" />
+        //   </ChartRow>
+        // </ChartContainer>
+
+        //dummy bar chart
+        <div>
+          <div className="row">
+            <div className="col-md-12">
+              <b>BarChart</b>
+            </div>
+          </div>
+          <hr />
+          <div className="row">
+            <div className="col-md-12">
+              <Resizable>
+                <ChartContainer timeRange={this.state.result.range()}>
+                  <ChartRow height="150">
+                    <Charts>
+                      <YAxis
+                        id="price"
+                        label="Price ($)"
+                        min={this.state.result.min()}
+                        max={this.state.result.max()}
+                        width="60"
+                        format="$,.2f"
+                      />
+                      <LineChart
+                        axis="price"
+                        series={this.state.result}
+                        column={["value"]}
+                      />
+                    </Charts>
+                  </ChartRow>
+                </ChartContainer>
+              </Resizable>
+            </div>
+          </div>
+        </div>
       );
     }
   }
 
-  //function that helps with the request
-  async http(request: RequestInfo): Promise<any> {
-    const response = await fetch(request);
-    const body = await response.json();
-    return body;
-  }
-
   formatData(data: any, nameP: string) {
-    // console.log("in format data:");
-    // console.log(data);
-    // console.log(data[0]["_start"]);
-    // data = data.map((point) => [point["_start"], point["_value"]]);
-    // console.log()
-    // const series: TimeSeries<Time> = new TimeSeries({
-    //   name: nameP,
-    //   columns: ["time", "value"],
-    //   points: data,
-    // });
+    console.log("in format data:");
 
-    const series = new TimeSeries({
-      name: "traffic",
-      columns: ["time", "in", "out"],
-      points: [
-        [1400425947000, 52, 12],
-        [1400425948000, 18, 42],
-        [1400425949000, 26, 81],
-        [1400425950000, 93, 11],
-      ],
+    data = data.map((point) => [point["_start"], point["_value"]]);
+    console.log();
+    const series = timeSeries({
+      name: nameP,
+      columns: ["time", "value"],
+      points: data,
     });
-    console.log(series);
+
+    //dummy data
+    // const series = timeSeries({
+    //   name: "traffic",
+    //   columns: ["time", "value"],
+    //   points: [
+    //     [1400425947000, 52],
+    //     [1400425948000, 18],
+    //     [1400425949000, 26],
+    //     [1400425950000, 93],
+    //   ],
+    // });
 
     return series;
   }
