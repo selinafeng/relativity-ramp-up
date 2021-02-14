@@ -21,9 +21,11 @@ function Dashboard() {
             [1400425948000, 2000],
         ],
     });
-
     const [altitudeData, setAltitudeData] = React.useState(tempSeries);
     const [accelerationData, setAccelerationData] = React.useState(tempSeries);
+    const [engine1Data, setEngine1Data] = React.useState(tempSeries);
+    const [engine2Data, setEngine2Data] = React.useState(tempSeries);
+    const [engine3Data, setEngine3Data] = React.useState(tempSeries);
     const [loading, setLoading] = React.useState(true);
 
     React.useEffect(timeSeriesFormatAll);
@@ -69,8 +71,14 @@ function Dashboard() {
             if (response.parsedBody != undefined) {
                 const body: Data[] = response.parsedBody;
                 console.log(body);
-                const data = timeSeriesDataFormat(body, measurement, setter);
-                return data;
+                if (measurement == "Engines") {
+                    engineTimeSeriesDataFormat(body, "engine-1", setEngine1Data);
+                    engineTimeSeriesDataFormat(body, "engine-2", setEngine2Data);
+                    engineTimeSeriesDataFormat(body, "engine-3", setEngine3Data);
+                }
+                else {
+                    timeSeriesDataFormat(body, measurement, setter);
+                }
             }
         } catch (response) {
             console.log("Error: ", response);
@@ -94,10 +102,31 @@ function Dashboard() {
         setLoading(false);
     }
 
+    // Formats the engine json data 
+    function engineTimeSeriesDataFormat(jsonData: Data[], varName: string, setter: Function) {
+        let pointsRaw: any[];
+        pointsRaw = [];
+        for (let i = 0; i < jsonData.length; i++) {
+            const engine = jsonData[i]["_measurement"];
+            if (engine == varName) {
+                const date = new Date(jsonData[i]["_stop"]);
+                pointsRaw.push(new TimeEvent(date, { value: jsonData[i]["_value"] }));
+            }
+        }
+        const series = new TimeSeries({
+            name: varName,
+            columns: ["time", "value"],
+            events: pointsRaw
+        });
+        setter(series);
+        setLoading(false);
+    }
+
     // Peforms all neecssary functions on all 3 endpoints 
     function timeSeriesFormatAll() {
         getData("http://localhost:8000/altitude", "Altitude", setAltitudeData);
         getData("http://localhost:8000/acceleration", "Acceleration", setAccelerationData);
+        getData("http://localhost:8000/engine", "Engines", setEngine1Data);
     }
 
     function renderAllCharts() {
@@ -105,7 +134,7 @@ function Dashboard() {
             <div>
                 <ChartContainer timeRange={altitudeData.timerange()}>
                     <ChartRow height="500">
-                        <YAxis id="axis1" label="VALUE" width="60" min={altitudeData.min()} max={altitudeData.max()} />
+                        <YAxis id="axis1" label="ALTITUDE" width="60" min={altitudeData.min()} max={altitudeData.max()} />
                         <Charts>
                             <LineChart axis="axis1" series={altitudeData} />
                         </Charts>
@@ -113,9 +142,19 @@ function Dashboard() {
                 </ChartContainer>
                 <ChartContainer timeRange={accelerationData.timerange()}>
                     <ChartRow height="500">
-                        <YAxis id="axis1" label="VALUE" width="60" min={accelerationData.min()} max={accelerationData.max()} />
+                        <YAxis id="axis1" label="ACCELERATION" width="60" min={accelerationData.min()} max={accelerationData.max()} />
                         <Charts>
                             <LineChart axis="axis1" series={accelerationData} />
+                        </Charts>
+                    </ChartRow>
+                </ChartContainer>
+                <ChartContainer timeRange={engine1Data.timerange()}>
+                    <ChartRow height="500">
+                        <YAxis id="axis1" label="ENGINES" width="60" min={engine1Data.min()} max={engine1Data.max()} />
+                        <Charts>
+                            <LineChart axis="axis1" series={engine1Data} />
+                            <LineChart axis="axis1" series={engine2Data} />
+                            <LineChart axis="axis1" series={engine3Data} />
                         </Charts>
                     </ChartRow>
                 </ChartContainer>
