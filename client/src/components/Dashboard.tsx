@@ -5,8 +5,6 @@ import {
   ChartRow,
   YAxis,
   LineChart,
-  BarChart,
-  Resizable,
 } from "react-timeseries-charts";
 import { Component } from "react";
 import { ReactComponent } from "*.svg";
@@ -53,19 +51,25 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
     if (this.state.result == null) {
       return <div> Loading!</div>;
     } else {
-      console.log(this.state.result);
+      console.log(this.state.result.timerange());
       console.log("above this");
       return (
         // takes a TimeRange object, need to figure out how to find it
         // t TimeRange = new TimeRanges
         <ChartContainer timeRange={this.state.result.timerange()} width={800}>
           <ChartRow height="200">
-            <YAxis id="axis1" label="VALUEEE" width="60" />
+            <YAxis
+              id="price"
+              label="Price ($)"
+              min={this.state.result.min()}
+              max={this.state.result.max()}
+              width="60"
+            />
             <Charts>
               <LineChart
-                axis="time"
+                axis="price"
                 series={this.state.result}
-                column={["value"]}
+                column={["time"]}
               />
             </Charts>
           </ChartRow>
@@ -84,9 +88,11 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
     //   points: data,
     // });
 
+    console.log(data);
+
     var events = data.map(
       (point) =>
-        new TimeEvent(new Date(point["_start"]), {
+        new TimeEvent(new Date(point["_time"]), {
           value: point["_value"],
         })
     );
@@ -98,9 +104,6 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
     console.log("BELOW");
     console.log(series);
     console.log("ABOVE");
-
-    var x = series.event;
-    console.log(x);
 
     //dummy data
     // const series = timeSeries({
