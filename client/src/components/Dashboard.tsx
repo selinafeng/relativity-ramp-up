@@ -95,27 +95,37 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
             </ChartRow>
           </ChartContainer>
 
-          {/* <ChartContainer
-            timeRange={this.state.result["engines"].timerange()}
+          <ChartContainer
+            timeRange={this.state.result["engine-1"].timerange()}
             width={800}
           >
             <ChartRow height="200">
               <YAxis
                 id="engine"
                 label="Engine Values"
-                min={this.state.result["engines"].min()}
-                max={this.state.result["engines"].max()}
+                min={this.state.result["engine-1"].min()}
+                max={this.state.result["engine-1"].max()}
                 width="60"
               />
               <Charts>
                 <LineChart
                   axis="engine"
-                  series={this.state.result["engines"]}
-                  column={["engines"]}
+                  series={this.state.result["engine-1"]}
+                  column={["time"]}
+                />
+                <LineChart
+                  axis="engine"
+                  series={this.state.result["engine-2"]}
+                  column={["time"]}
+                />
+                <LineChart
+                  axis="engine"
+                  series={this.state.result["engine-3"]}
+                  column={["time"]}
                 />
               </Charts>
             </ChartRow>
-          </ChartContainer> */}
+          </ChartContainer>
 
           <ChartContainer
             timeRange={this.state.result["accel"].timerange()}
@@ -158,7 +168,7 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
     // }
 
     if (nameP.startsWith("e")) {
-      data = data.filter((point) => point["measurement"] === nameP);
+      data = data.filter((point) => point["_measurement"] === nameP);
     }
 
     var events = data.map(
