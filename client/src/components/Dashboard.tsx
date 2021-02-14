@@ -11,19 +11,11 @@ import React from "react";
 import { TimeSeries, TimeEvent } from "pondjs";
 
 export default class DashBoard extends Component<{}, { result: any | null }> {
-  //don't need to touch this anymore!
   constructor(props) {
     super(props);
     this.state = {
       result: null,
     };
-  }
-
-  //helper function that makes http get request
-  async http(request: RequestInfo): Promise<any> {
-    const response = await fetch(request);
-    const body = await response.json();
-    return body;
   }
 
   //run once when the component is first rendered
@@ -40,17 +32,14 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
     //engine data 1
     var engineSeries1 = this.formatData(engData, "engine-1");
     dictOfSeries["engine-1"] = engineSeries1;
-    console.log(engineSeries1);
 
     //engine data 2
     var engineSeries2 = this.formatData(engData, "engine-2");
     dictOfSeries["engine-2"] = engineSeries2;
-    console.log(engineSeries2);
 
     //engine data 3
     var engineSeries3 = this.formatData(engData, "engine-3");
     dictOfSeries["engine-3"] = engineSeries3;
-    console.log(engineSeries3);
 
     //get acceleration data
     var accelSeries = this.formatData(accelData, "accel");
@@ -61,14 +50,9 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
 
   //put graphs here
   render() {
-    // return <div>Hello</div>;
-
-    //set up the timeRange
-
     if (this.state.result == null) {
       return <div> Loading!</div>;
     } else {
-      console.log("above this");
       return (
         // takes a TimeRange object, need to figure out how to find it
         // t TimeRange = new TimeRanges
@@ -153,20 +137,15 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
     }
   }
 
+  //helper function that makes http get request
+  async http(request: RequestInfo): Promise<any> {
+    const response = await fetch(request);
+    const body = await response.json();
+    return body;
+  }
+
+  //helper function to parse the request
   formatData(data: any, nameP: string) {
-    console.log("in format data:");
-
-    // var s: Set<String> = new Set();
-    // var c = 0;
-    // for (var i = 0; i < data.length; i++) {
-    //   if (s.has(data[i]["_time"])) {
-    //     console.log(data[i]["_time"]);
-    //     c += 1;
-    //   } else {
-    //     s.add(data[i]["_time"]);
-    //   }
-    // }
-
     if (nameP.startsWith("e")) {
       data = data.filter((point) => point["_measurement"] === nameP);
     }
@@ -182,85 +161,7 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
       name: nameP,
       events: events,
     });
-    console.log("BELOW");
-    console.log(data);
-    console.log("ABOVE");
 
     return series;
   }
 }
-
-// function dataChangeType(res: Promise<Response>) {
-//   console.log(res);
-//   var x: dataRocket = {
-//     result: "dummy r",
-//     table: 1,
-//     _start: "dummy r",
-//     _stop: "dummy r",
-//     _value: 1,
-//     _measurement: "dummy r",
-//     flight: "dummy r",
-//     host: "dummy r",
-//   };
-
-//   return x;
-// }
-
-// async function http<T>(request: RequestInfo): Promise<T> {
-//   const response = await fetch(request);
-//   const body = await response.json();
-//   return body;
-// }
-
-// interface dataRocket {
-//   result: string;
-//   table: number;
-//   _start: string;
-//   _stop: string;
-//   _value: number;
-//   _measurement: string;
-//   flight: string;
-//   host: string;
-// }
-
-// async function http<dataRocket>(request: RequestInfo): Promise<any> {
-//   const response = await fetch(request);
-//   try {
-//     const body = await response.json();
-//     console.log(body);
-//     return body;
-//   } catch (ex) {}
-//   if (!response.ok) {
-//     throw new Error(response.statusText);
-//   }
-// }
-
-// function DashBoard() {
-//   //   const data = http<dataRocket>("http://localhost:3000/engines");
-//   const response = await fetch("http://localhost:3000/engines");
-//   console.log(response);
-
-//   return <div> 5 </div>;
-// }
-
-//   const s1: dataRocket = FormatData("http://localhost:3000/engines");
-
-// //format the data into a FlightData
-// async function FormatData(hyperLink: string) {
-//   try {
-//     var res: Response = await fetch(hyperLink);
-//     var data: dataRocket = {
-//       result: "dummy results",
-//       table: -1,
-//       _start: "START OFF",
-//       _stop: "END TIME",
-//       _value: 9000,
-//       _measurement: "dummy measurement",
-//       flight: "dummy flight",
-//       host: "dummy host",
-//     };
-//     return data;
-//   } catch (err) {
-//     console.log("rip");
-//   }
-// }
