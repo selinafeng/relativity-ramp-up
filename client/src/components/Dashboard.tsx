@@ -1,6 +1,5 @@
 import React from "react";
-import { TimeSeries, timeEvent, time } from "pondjs";
-import * as Immutable from 'immutable';
+import { TimeSeries, TimeEvent, time } from "pondjs";
 import {
     Charts,
     BarChart,
@@ -11,17 +10,15 @@ import {
     YAxis,
     LineChart
 } from "react-timeseries-charts";
-import { TimeEventObject } from "pondjs/lib/event";
 
 function Dashboard() {
-
     const [data, setData] = React.useState(null);
     const tempSeries = new TimeSeries({
         name: "temp",
         columns: ["time", "value"],
         points: [
-            ["1h-412568", 0.01],
-            ["1h-412569", 0.13],
+            [1400425947000, 1000],
+            [1400425948000, 2000],
         ],
     });
 
@@ -100,17 +97,14 @@ function Dashboard() {
         pointsRaw = [];
         for (let i = 0; i < jsonData.length; i++) {
             const date = new Date(jsonData[i]["_time"]);
-            // const e = new Event(date.getTime(), jsonData[i]["_value"]);
-            // pointsRaw.push([date.getTime(), jsonData[i]["_value"]]);
-            pointsRaw.push(timeEvent(time(date), Immutable.Map({ value: 14 })));
+            pointsRaw.push(new TimeEvent(date, { value: jsonData[i]["_value"] }));
         }
         const series = new TimeSeries({
             name: varName,
             columns: ["time", "value"],
-            points: pointsRaw
+            events: pointsRaw
         });
         setAltitudeData(series);
-        console.log(series.timerange().toString());
     }
 
     // Peforms all neecssary functions on all 3 endpoints 
@@ -123,10 +117,24 @@ function Dashboard() {
     }
 
     getData("http://localhost:8000/altitude");
+    if (typeof altitudeData != undefined) {
+        return (
+            <ChartContainer timeRange={altitudeData.timerange()}>
+                <ChartRow height="500">
+                    <YAxis id="axis1" label="VALUE" width="60" min={altitudeData.min()} max={altitudeData.max()} />
+                    <Charts>
+                        <LineChart axis="axis1" series={altitudeData} />
+                    </Charts>
+                </ChartRow>
+            </ChartContainer>
 
-    return (
-        <div>hi</div>
-    )
+        )
+    }
+    else {
+        return (
+            <div>Loading...</div>
+        )
+    }
 
 }
 

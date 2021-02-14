@@ -8353,10 +8353,10 @@
   dependencies:
     "ts-pnp" "^1.1.6"
 
-"pondjs@^0.8.0":
-  "integrity" "sha512-w9o/S5/x+RH59tzxwZWHAaB9WJMRTEBupgbSMzGxbxp9Ul6SbWK8KZVw6eRsb4n+LsdqCsi9Le2+6zX7qhNaSg=="
-  "resolved" "https://registry.npmjs.org/pondjs/-/pondjs-0.8.10.tgz"
-  "version" "0.8.10"
+"pondjs@^0.8.0", "pondjs@^0.8.6":
+  "integrity" "sha1-hHig7foR9pYLroqyYreJzSyP5YY="
+  "resolved" "https://registry.npmjs.org/pondjs/-/pondjs-0.8.6.tgz"
+  "version" "0.8.6"
   dependencies:
     "babel-polyfill" "^6.9.1"
     "babel-runtime" "^6.5.0"
