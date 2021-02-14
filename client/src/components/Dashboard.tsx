@@ -7,11 +7,8 @@ import {
   LineChart,
 } from "react-timeseries-charts";
 import { Component } from "react";
-import { ReactComponent } from "*.svg";
-import { Http2ServerRequest } from "http2";
 import React from "react";
 import { TimeSeries, TimeEvent } from "pondjs";
-import { List, Map } from "immutable";
 
 export default class DashBoard extends Component<{}, { result: any | null }> {
   //don't need to touch this anymore!
@@ -33,12 +30,12 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
   async componentDidMount() {
     var altData = await this.http("http://localhost:8000/altitude");
 
-    var series = this.formatData(altData, "altitude");
-    console.log(series.timerange());
-    console.log("present");
-    console.log("past");
+    //add altitude data
+    var dictOfSeries = {};
+    var altSeries = this.formatData(altData, "altitude");
+    dictOfSeries["altitude"] = altSeries;
 
-    this.setState({ result: series });
+    this.setState({ result: dictOfSeries });
     console.log(this.state.result);
   }
 
@@ -51,24 +48,26 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
     if (this.state.result == null) {
       return <div> Loading!</div>;
     } else {
-      console.log(this.state.result.timerange());
       console.log("above this");
       return (
         // takes a TimeRange object, need to figure out how to find it
         // t TimeRange = new TimeRanges
-        <ChartContainer timeRange={this.state.result.timerange()} width={800}>
+        <ChartContainer
+          timeRange={this.state.result["altitude"].timerange()}
+          width={800}
+        >
           <ChartRow height="200">
             <YAxis
               id="price"
               label="Price ($)"
-              min={this.state.result.min()}
-              max={this.state.result.max()}
+              min={this.state.result["altitude"].min()}
+              max={this.state.result["altitude"].max()}
               width="60"
             />
             <Charts>
               <LineChart
                 axis="price"
-                series={this.state.result}
+                series={this.state.result["altitude"]}
                 column={["time"]}
               />
             </Charts>
@@ -98,7 +97,7 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
     );
 
     const series = new TimeSeries({
-      name: "events",
+      name: nameP,
       events: events,
     });
     console.log("BELOW");
