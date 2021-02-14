@@ -23,6 +23,10 @@ function Dashboard() {
     });
 
     const [altitudeData, setAltitudeData] = React.useState(tempSeries);
+    const [accelerationData, setAccelerationData] = React.useState(tempSeries);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(timeSeriesFormatAll);
 
     // Format of data from endpoint 
     interface Data {
@@ -58,14 +62,14 @@ function Dashboard() {
     }
 
     // Consumer 
-    async function getData(url: string) {
+    async function getData(url: string, measurement: string, setter: Function) {
         let response: HttpResponse<Data[]>;
         try {
             response = await http<Data[]>(url);
             if (response.parsedBody != undefined) {
                 const body: Data[] = response.parsedBody;
                 console.log(body);
-                const data = timeSeriesDataFormat(body, "hi");
+                const data = timeSeriesDataFormat(body, measurement, setter);
                 return data;
             }
         } catch (response) {
@@ -74,25 +78,7 @@ function Dashboard() {
     }
 
     // Formats the json data into a format readible by TimeSeries 
-    // function timeSeriesDataFormat(jsonData: Data[], varName: string) {
-    //     let pointsRaw: any[][];
-    //     pointsRaw = [];
-    //     for (let i = 0; i < jsonData.length; i++) {
-    //         const date = new Date(jsonData[i]["_time"]);
-    //         // const e = new Event(date.getTime(), jsonData[i]["_value"]);
-    //         pointsRaw.push([date.getTime(), jsonData[i]["_value"]]);
-    //     }
-    //     const series = new TimeSeries({
-    //         name: varName,
-    //         columns: ["time", "value"],
-    //         points: pointsRaw
-    //     });
-    //     setAltitudeData(series);
-    //     console.log(series.toString());
-    // }
-
-    // Formats the json data into a format readible by TimeSeries 
-    function timeSeriesDataFormat(jsonData: Data[], varName: string) {
+    function timeSeriesDataFormat(jsonData: Data[], varName: string, setter: Function) {
         let pointsRaw: any[];
         pointsRaw = [];
         for (let i = 0; i < jsonData.length; i++) {
@@ -104,30 +90,42 @@ function Dashboard() {
             columns: ["time", "value"],
             events: pointsRaw
         });
-        setAltitudeData(series);
+        setter(series);
+        setLoading(false);
     }
 
     // Peforms all neecssary functions on all 3 endpoints 
-    // function timeSeriesFormatAll() {
-    //     setAltitudeData(timeSeriesDataFormat(____)); 
-    // }
-
-    function renderAllCharts() {
-
+    function timeSeriesFormatAll() {
+        getData("http://localhost:8000/altitude", "Altitude", setAltitudeData);
+        getData("http://localhost:8000/acceleration", "Acceleration", setAccelerationData);
     }
 
-    getData("http://localhost:8000/altitude");
-    if (typeof altitudeData != undefined) {
+    function renderAllCharts() {
         return (
-            <ChartContainer timeRange={altitudeData.timerange()}>
-                <ChartRow height="500">
-                    <YAxis id="axis1" label="VALUE" width="60" min={altitudeData.min()} max={altitudeData.max()} />
-                    <Charts>
-                        <LineChart axis="axis1" series={altitudeData} />
-                    </Charts>
-                </ChartRow>
-            </ChartContainer>
+            <div>
+                <ChartContainer timeRange={altitudeData.timerange()}>
+                    <ChartRow height="500">
+                        <YAxis id="axis1" label="VALUE" width="60" min={altitudeData.min()} max={altitudeData.max()} />
+                        <Charts>
+                            <LineChart axis="axis1" series={altitudeData} />
+                        </Charts>
+                    </ChartRow>
+                </ChartContainer>
+                <ChartContainer timeRange={accelerationData.timerange()}>
+                    <ChartRow height="500">
+                        <YAxis id="axis1" label="VALUE" width="60" min={accelerationData.min()} max={accelerationData.max()} />
+                        <Charts>
+                            <LineChart axis="axis1" series={accelerationData} />
+                        </Charts>
+                    </ChartRow>
+                </ChartContainer>
+            </div>
+        )
+    }
 
+    if (!loading) {
+        return (
+            <div>{renderAllCharts()}</div>
         )
     }
     else {

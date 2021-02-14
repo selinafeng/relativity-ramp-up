@@ -38,6 +38,7 @@ app.get('/altitude', async (req, res) => {
 
 // Endpoint that gets data from all three engines and averages datapoints, grouping by every 1 second 
 app.get('/engine', async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
   const fluxQuery = `from(bucket: "relativity-ramp-up") 
                         |> range(start: -500h) 
                         |> filter(fn: (r) => r._measurement == "engine-1" 
@@ -50,6 +51,7 @@ app.get('/engine', async (req, res) => {
 
 // Endpoint that gets acceleration data from the speed measurement 
 app.get('/acceleration', async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
   const fluxQuery = `from(bucket: "relativity-ramp-up") 
                         |> range(start: -500h)
                         |> filter(fn: (r) => r._measurement == "speed") 
