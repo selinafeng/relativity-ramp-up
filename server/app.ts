@@ -14,9 +14,14 @@ const queryApi = client.getQueryApi(org);
 export const app = express();
 const port = 8000;
 
-app.get("/", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-  res.send("Hello Worlds!");
+app.get("/", async (req, res) => {
+  try {
+    const fluxQuery = "buckets()";
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+    res.json(await queryApi.collectRows(fluxQuery));
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // Measurements!
