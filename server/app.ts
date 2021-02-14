@@ -44,7 +44,7 @@ app.get("/altitude", async (req, res) => {
       relativityBucket +
       "|> range(start: 2021-02-05T21:13:29.690Z, stop: 2021-02-05T21:18:29.690Z)" +
       "|> filter(fn: (r) =>" +
-      'r._measurement == "speed")';
+      'r._measurement == "altitude")';
     res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
     res.json(await queryApi.collectRows(fluxQuery));
   } catch (error) {

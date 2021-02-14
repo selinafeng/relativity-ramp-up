@@ -37,10 +37,22 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
     var altSeries = this.formatData(altData, "altitude");
     dictOfSeries["altitude"] = altSeries;
 
-    var engineSeries = this.formatData(engData, "engines");
-    dictOfSeries["engines"] = engineSeries;
-    console.log(engineSeries);
+    //engine data 1
+    var engineSeries1 = this.formatData(engData, "engine-1");
+    dictOfSeries["engine-1"] = engineSeries1;
+    console.log(engineSeries1);
 
+    //engine data 2
+    var engineSeries2 = this.formatData(engData, "engine-2");
+    dictOfSeries["engine-2"] = engineSeries2;
+    console.log(engineSeries2);
+
+    //engine data 3
+    var engineSeries3 = this.formatData(engData, "engine-3");
+    dictOfSeries["engine-3"] = engineSeries3;
+    console.log(engineSeries3);
+
+    //get acceleration data
     var accelSeries = this.formatData(accelData, "accel");
     dictOfSeries["accel"] = accelSeries;
 
@@ -126,7 +138,6 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
               </Charts>
             </ChartRow>
           </ChartContainer>
-
         </div>
       );
     }
@@ -135,12 +146,20 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
   formatData(data: any, nameP: string) {
     console.log("in format data:");
 
-    // data = data.map((point) => [point["_start"], point["_value"]]);
-    // const series = timeSeries({
-    //   name: nameP,
-    //   columns: ["time", "value"],
-    //   points: data,
-    // });
+    // var s: Set<String> = new Set();
+    // var c = 0;
+    // for (var i = 0; i < data.length; i++) {
+    //   if (s.has(data[i]["_time"])) {
+    //     console.log(data[i]["_time"]);
+    //     c += 1;
+    //   } else {
+    //     s.add(data[i]["_time"]);
+    //   }
+    // }
+
+    if (nameP.startsWith("e")) {
+      data = data.filter((point) => point["measurement"] === nameP);
+    }
 
     var events = data.map(
       (point) =>
@@ -149,8 +168,6 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
         })
     );
 
-    console.log(events);
-
     const series = new TimeSeries({
       name: nameP,
       events: events,
@@ -158,18 +175,6 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
     console.log("BELOW");
     console.log(data);
     console.log("ABOVE");
-
-    //dummy data
-    // const series = timeSeries({
-    //   name: "traffic",
-    //   columns: ["time", "value"],
-    //   points: [
-    //     [1400425947000, 52],
-    //     [1400425948000, 18],
-    //     [1400425949000, 26],
-    //     [1400425950000, 93],
-    //   ],
-    // });
 
     return series;
   }
