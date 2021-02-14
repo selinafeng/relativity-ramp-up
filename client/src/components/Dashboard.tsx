@@ -12,7 +12,7 @@ import { Component } from "react";
 import { ReactComponent } from "*.svg";
 import { Http2ServerRequest } from "http2";
 import React from "react";
-import { TimeSeries, timeSeries, TimeEvent } from "pondjs";
+import { TimeSeries, TimeEvent } from "pondjs";
 import { List, Map } from "immutable";
 
 export default class DashBoard extends Component<{}, { result: any | null }> {
@@ -41,6 +41,7 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
     console.log("past");
 
     this.setState({ result: series });
+    console.log(this.state.result);
   }
 
   //put graphs here
@@ -52,21 +53,21 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
     if (this.state.result == null) {
       return <div> Loading!</div>;
     } else {
+      console.log(this.state.result);
+      console.log("above this");
       return (
         // takes a TimeRange object, need to figure out how to find it
         // t TimeRange = new TimeRanges
-
         <ChartContainer timeRange={this.state.result.timerange()} width={800}>
           <ChartRow height="200">
             <YAxis id="axis1" label="VALUEEE" width="60" />
             <Charts>
               <LineChart
-                axis="axis1"
+                axis="time"
                 series={this.state.result}
                 column={["value"]}
               />
             </Charts>
-            <YAxis id="axis2" label="VALUUEUEU" width="80" />
           </ChartRow>
         </ChartContainer>
       );
@@ -89,10 +90,17 @@ export default class DashBoard extends Component<{}, { result: any | null }> {
           value: point["_value"],
         })
     );
+
     const series = new TimeSeries({
       name: "events",
       events: events,
     });
+    console.log("BELOW");
+    console.log(series);
+    console.log("ABOVE");
+
+    var x = series.event;
+    console.log(x);
 
     //dummy data
     // const series = timeSeries({
