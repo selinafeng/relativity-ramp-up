@@ -5,18 +5,17 @@ import {
   ChartRow,
   YAxis,
   LineChart,
+  BarChart,
   Resizable,
 } from "react-timeseries-charts";
 import { Component } from "react";
 import { ReactComponent } from "*.svg";
 import { Http2ServerRequest } from "http2";
 import React from "react";
-import { TimeSeries, timeSeries, Time, TimeRange } from "pondjs";
+import { TimeSeries, timeSeries, TimeEvent } from "pondjs";
+import { List, Map } from "immutable";
 
-export default class DashBoard extends Component<
-  {},
-  { result: TimeSeries<Time> | null }
-> {
+export default class DashBoard extends Component<{}, { result: any | null }> {
   //don't need to touch this anymore!
   constructor(props) {
     super(props);
@@ -38,7 +37,8 @@ export default class DashBoard extends Component<
 
     var series = this.formatData(altData, "altitude");
     console.log(series.timerange());
-    console.log(series);
+    console.log("present");
+    console.log("past");
 
     this.setState({ result: series });
   }
@@ -56,59 +56,19 @@ export default class DashBoard extends Component<
         // takes a TimeRange object, need to figure out how to find it
         // t TimeRange = new TimeRanges
 
-        // <ChartContainer timeRange={this.state.result.range()} width={800}>
-        //   <ChartRow height="200">
-        //     <YAxis id="axis1" label="VALUEEE" width="60" />
-        //     <Charts>
-        //       <LineChart
-        //         axis="axis1"
-        //         series={this.state.result}
-        //         column={["value"]}
-        //       />
-        //       <LineChart
-        //         axis="axis2"
-        //         series={this.state.result}
-        //         column={["value"]}
-        //       />
-        //     </Charts>
-        //     <YAxis id="axis2" label="VALUUEUEU" width="80" />
-        //   </ChartRow>
-        // </ChartContainer>
-
-        //dummy bar chart
-        <div>
-          <div className="row">
-            <div className="col-md-12">
-              <b>BarChart</b>
-            </div>
-          </div>
-          <hr />
-          <div className="row">
-            <div className="col-md-12">
-              <Resizable>
-                <ChartContainer timeRange={this.state.result.range()}>
-                  <ChartRow height="150">
-                    <Charts>
-                      <YAxis
-                        id="price"
-                        label="Price ($)"
-                        min={this.state.result.min()}
-                        max={this.state.result.max()}
-                        width="60"
-                        format="$,.2f"
-                      />
-                      <LineChart
-                        axis="price"
-                        series={this.state.result}
-                        column={["value"]}
-                      />
-                    </Charts>
-                  </ChartRow>
-                </ChartContainer>
-              </Resizable>
-            </div>
-          </div>
-        </div>
+        <ChartContainer timeRange={this.state.result.timerange()} width={800}>
+          <ChartRow height="200">
+            <YAxis id="axis1" label="VALUEEE" width="60" />
+            <Charts>
+              <LineChart
+                axis="axis1"
+                series={this.state.result}
+                column={["value"]}
+              />
+            </Charts>
+            <YAxis id="axis2" label="VALUUEUEU" width="80" />
+          </ChartRow>
+        </ChartContainer>
       );
     }
   }
@@ -116,12 +76,22 @@ export default class DashBoard extends Component<
   formatData(data: any, nameP: string) {
     console.log("in format data:");
 
-    data = data.map((point) => [point["_start"], point["_value"]]);
-    console.log();
-    const series = timeSeries({
-      name: nameP,
-      columns: ["time", "value"],
-      points: data,
+    // data = data.map((point) => [point["_start"], point["_value"]]);
+    // const series = timeSeries({
+    //   name: nameP,
+    //   columns: ["time", "value"],
+    //   points: data,
+    // });
+
+    var events = data.map(
+      (point) =>
+        new TimeEvent(new Date(point["_start"]), {
+          value: point["_value"],
+        })
+    );
+    const series = new TimeSeries({
+      name: "events",
+      events: events,
     });
 
     //dummy data
