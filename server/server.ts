@@ -1,4 +1,6 @@
-const server = require("./app")
-server.listen(3000, () => {
-    console.log(`Example app listening at http://localhost:3000`)
+// const server = require("./app")
+import {app, port} from './app'
+
+app.listen(port, () => {
+    console.log(`Example app listening at http://localhost:${port}`)
 })

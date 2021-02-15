@@ -1,7 +1,7 @@
 import express from 'express';
 
 export const app = express()
-const port = 3000
+export const port = 3000
 
 // For testing locally: https://www.npmjs.com/package/cors
 var cors = require('cors')
@@ -92,5 +92,3 @@ app.get('/acceleration', async (req, res) => {
 // app.listen(port, () => {
 //   console.log(`Example app listening at http://localhost:${port}`)
 // })
-
-// module.exports = app;
