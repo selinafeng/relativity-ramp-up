@@ -1,11 +1,4 @@
 import Dashboard from './components/Dashboard'
-import {
-  Charts,
-  ChartContainer,
-  ChartRow,
-  YAxis,
-  LineChart
-} from "react-timeseries-charts";
 
 function App() {
   return (

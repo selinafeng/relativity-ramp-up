@@ -1,18 +1,14 @@
 import React from "react";
-import { TimeSeries, TimeEvent, time } from "pondjs";
+import { TimeSeries, TimeEvent } from "pondjs";
 import {
     Charts,
-    BarChart,
     ChartContainer,
     ChartRow,
-    Resizable,
-    styler,
     YAxis,
     LineChart
 } from "react-timeseries-charts";
 
 function Dashboard() {
-    const [data, setData] = React.useState(null);
     const tempSeries = new TimeSeries({
         name: "temp",
         columns: ["time", "value"],
@@ -71,7 +67,6 @@ function Dashboard() {
             response = await http<Data[]>(url);
             if (response.parsedBody != undefined) {
                 const body: Data[] = response.parsedBody;
-                console.log(body);
                 if (measurement == "Engines") {
                     engineTimeSeriesDataFormat(body, "engine-1", setEngine1Data);
                     engineTimeSeriesDataFormat(body, "engine-2", setEngine2Data);
