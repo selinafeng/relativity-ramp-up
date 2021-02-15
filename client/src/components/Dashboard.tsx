@@ -6,7 +6,7 @@ import {
     ChartContainer,
     ChartRow,
     Resizable,
-    Styler,
+    styler,
     YAxis,
     LineChart
 } from "react-timeseries-charts";
@@ -21,6 +21,7 @@ function Dashboard() {
             [1400425948000, 2000],
         ],
     });
+
     const [altitudeData, setAltitudeData] = React.useState(tempSeries);
     const [accelerationData, setAccelerationData] = React.useState(tempSeries);
     const [engine1Data, setEngine1Data] = React.useState(tempSeries);
