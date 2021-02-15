@@ -3,6 +3,10 @@ import express from 'express';
 export const app = express()
 const port = 3000
 
+// For testing locally: https://www.npmjs.com/package/cors
+var cors = require('cors')
+app.use(cors())
+
 import { InfluxDB } from '@influxdata/influxdb-client'
 
 const token = 'kxF9oWgVQdrUMz3kFOwyVw8eRqr1guWFeuSVIdXlBi-8ANuuwH5utNX-bDqh1hbhbmQguXYnPNJCr7AwUONtVA=='
@@ -15,20 +19,24 @@ const queryApi = client.getQueryApi(org)
 
 
 app.get('/', (req, res) => {
+  console.log("hi")
   res.send('Hello World!')
 })
 
-app.get('/schema', async (req, res) => {
+app.get('/buckets', async (req, res) => {
+  console.log("buckets")
   const fluxQuery = 'buckets()'
   res.json(await queryApi.collectRows(fluxQuery));
 })
 
 app.get('/altitude', async (req, res) => {
+  console.log("altitude")
   const fluxQuery = 'from(bucket: "relativity-ramp-up") |> range(start: 0) |> filter(fn: (r) => r._measurement == "altitude" )'
   res.json(await queryApi.collectRows(fluxQuery));
 })
 
 app.get('/engines', async (req, res) => {
+  console.log("engines")
   // https://docs.influxdata.com/influxdb/cloud/query-data/flux/regular-expressions/
   
   // Memory allocation limit reached:
@@ -81,6 +89,8 @@ app.get('/acceleration', async (req, res) => {
   res.json(await queryApi.collectRows(fluxQuery));
 })
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
-})
+// app.listen(port, () => {
+//   console.log(`Example app listening at http://localhost:${port}`)
+// })
+
+// module.exports = app;
