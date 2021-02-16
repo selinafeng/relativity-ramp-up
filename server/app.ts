@@ -31,7 +31,8 @@ app.get("/engines", async (req, res) => {
     + '|> range(start: 0)'
     + '|> filter(fn: (r) => r._measurement == "engine-1" or r._measurement == "engine-2" or r._measurement == "engine-3")'
     + '|> window(every: 1s)'
-    + '|> mean() ';
+    + '|> mean() '
+    + '|> duplicate(column: "_start", as: "_time")';
   const query = res.json(await queryApi.collectRows(fluxQuery));
   res.send(query);
 });
