@@ -52,7 +52,12 @@ app.get('/engines', async (req, res) => {
   console.time("data aggregation")
   const secIndex: number = 17;
   const secLength: number = 2;
-  let result: { [key: string]: string | number }[] = []
+  let result: { [key: string]: string | number | null }[] = []
+  result.push({
+    "start_1": null,
+    "start_2": null,
+    "start_3": null
+  })
   let prev: number | null = null;
   let subtotal: number = 0;
   let numEntries: number = 0;
@@ -62,18 +67,28 @@ app.get('/engines', async (req, res) => {
   for (let i = 0; i < Object.keys(data).length; i += 1) {
     let time = data[i]['_time']
     let curr: number = +time.toString().substring(secIndex, secIndex + secLength)
+    if (data[i]['_measurement'] === 'engine1' && result[0]["start_1"] === null) {
+      result[0]["start_1"] = i
+    } else if (data[i]['_measurement'] === 'engine2' && result[0]["start_2"] === null) {
+      result[0]["start_2"] = i
+    } else if (data[i]['_measurement'] === 'engine3' && result[0]["start_3"] === null) {
+      result[0]["start_3"] = i
+    }
     if (prev === null || curr != prev) {
       prev = curr
       if (!(entry === null)) {
-        entry['stop'] = time
-        entry['average'] = subtotal / numEntries
+        entry['stopInterval'] = time
+        entry['_value'] = subtotal / numEntries
         entry['numEntries'] = numEntries
+        entry['_time'] = time
+        entry['_measurement'] = data[i]['_measurement']
+        entry['_field'] = data[i]['_field']
         subtotal = curr
         numEntries = 1
         result.push(entry)
       }
       entry = {
-        'start': time
+        'startInterval': time
       }
     } else {
       subtotal += curr
