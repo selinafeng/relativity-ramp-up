@@ -43,12 +43,14 @@ class TripleValue extends React.Component {
             let engine = data[engine_num]
             for (let i = 0; i < engine.length; i += 1) {
                 if (engine_num == 0) {
-                    new_data["points"].push([Index.getIndexString("0.001s", new Date(data[engine_num][i]["_time"])), data[engine_num][i]["_value"], null, null])
+                    new_data["points"].push([Index.getIndexString("0.001s", new Date(engine[i]["_time"])), engine[i]["_value"], null, null])
+                } else if (i < data[0].length) {
+                    new_data["points"][i][engine_num + 1] = engine[i]["_value"]
                 } else {
-                    new_data["points"][i] = data[engine_num][i]["_value"]
+                    console.log("Unexpected data", i, data[0])
                 }
-                save_min = Math.min(save_min, data[engine_num][i]["_value"])
-                save_max = Math.max(save_max, data[engine_num][i]["_value"])
+                save_min = Math.min(save_min, engine[i]["_value"])
+                save_max = Math.max(save_max, engine[i]["_value"])
             }
         }
         this.setState(
