@@ -20,7 +20,7 @@ class TripleValue extends React.Component {
             data: {
                 name: props.name,
                 columns: ["index", "value1", "value2", "value3"],
-                points: []
+                points: [[], [], []]
             },
         }
         this.process = this.process.bind(this)
@@ -36,28 +36,21 @@ class TripleValue extends React.Component {
     }
 
     process(data) {
-        let save_min = data[1]["_value"]
-        let save_max = data[1]["_value"]
+        // add length check
+        let save_min = data[0][0]["_value"]
+        let save_max = data[0][0]["_value"]
         let new_data = this.state.data
-        let start_1 = data[0]["start_1"]
-        let start_2 = data[0]["start_2"]
-        let start_3 = data[0]["start_3"]
-        console.log("STARTS:")
-        console.log(start_1, start_2, start_3)
-        for (let i = start_1; i < start_2; i += 1) {
-            new_data["points"].push([Index.getIndexString("0.001s", new Date(data[i]["_time"])), data[i]["_value"], null, null])
-            save_min = Math.min(save_min, data[i]["_value"])
-            save_max = Math.max(save_max, data[i]["_value"])
-        }
-        for (let i = start_2; i < start_3; i += 1) {
-            new_data["points"][i - start_2][2] = data[i]["_value"]
-            save_min = Math.min(save_min, data[i]["_value"])
-            save_max = Math.max(save_max, data[i]["_value"])
-        }
-        for (let i = start_3; i < data.length; i += 1) {
-            new_data["points"][i - start_3][3] = data[i]["_value"]
-            save_min = Math.min(save_min, data[i]["_value"])
-            save_max = Math.max(save_max, data[i]["_value"])
+        for (let engine_num = 0; engine_num < data.length; engine_num += 1) {
+            let engine = data[engine_num]
+            for (let i = 0; i < engine.length; i += 1) {
+                if (engine_num == 0) {
+                    new_data["points"][engine_num + 1].push([Index.getIndexString("0.001s", new Date(data[engine_num][i]["_time"])), data[engine_num][i]["_value"], null, null])
+                } else {
+                    new_data["points"][engine_num + 1][i] = data[engine_num][i]["_value"]
+                }
+                save_min = Math.min(save_min, data[engine_num][i]["_value"])
+                save_max = Math.max(save_max, data[engine_num][i]["_value"])
+            }
         }
         this.setState(
             { 
@@ -81,7 +74,7 @@ class TripleValue extends React.Component {
             return (
                 <div>
                     <h1 style={{textAlign: "left", marginLeft: "5vw"}}>{this.state.data["name"]} vs Time</h1>
-                    <ChartContainer timeRange={this.state.timeseries.timerange()} enablePanZoom={true}>
+                    <ChartContainer timeRange={this.state.timeseries.timerange()}>
                         <ChartRow height="300">
                             <YAxis
                                 id="y"

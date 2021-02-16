@@ -65,7 +65,7 @@ class SingleValue extends React.Component {
             return (
                 <div>
                     <h1 style={{textAlign: "left", marginLeft: "5vw"}}>{this.state.data["name"]} vs Time</h1>
-                    <ChartContainer timeRange={this.state.timeseries.timerange()} enablePanZoom={true}>
+                    <ChartContainer timeRange={this.state.timeseries.timerange()}>
                         <ChartRow height="300">
                             <YAxis
                                 id="y"
