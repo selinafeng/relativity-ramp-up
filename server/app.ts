@@ -15,6 +15,7 @@ export const app = express()
 const port = 5000
 
 app.get("/altitude", async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
   const fluxQuery =
     'from(bucket:"' + bucket + '")'
     + '|> range(start: 0)'
@@ -24,6 +25,7 @@ app.get("/altitude", async (req, res) => {
 });
 
 app.get("/engines", async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
   const fluxQuery =
     'from(bucket:"' + bucket + '")'
     + '|> range(start: 0)'
@@ -35,11 +37,12 @@ app.get("/engines", async (req, res) => {
 });
 
 app.get("/acceleration", async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
   const fluxQuery =
     'from(bucket:"' + bucket + '")'
     + '|> range(start: 0)'
     + '|> filter(fn: (r) => r._measurement == "speed")'
-    + '|> derivative(unit: 10ms)`';
+    + '|> derivative(unit: 10ms)';
   const query = res.json(await queryApi.collectRows(fluxQuery));
   res.send(query);
 });
