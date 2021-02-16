@@ -1,4 +1,3 @@
-// import { time } from "console";
 import React from "react"
 import { TimeSeries, TimeRange, Index } from "pondjs";
 
@@ -20,7 +19,7 @@ class TripleValue extends React.Component {
             data: {
                 name: props.name,
                 columns: ["index", "value1", "value2", "value3"],
-                points: [[], [], []]
+                points: []
             },
         }
         this.process = this.process.bind(this)
@@ -44,9 +43,9 @@ class TripleValue extends React.Component {
             let engine = data[engine_num]
             for (let i = 0; i < engine.length; i += 1) {
                 if (engine_num == 0) {
-                    new_data["points"][engine_num + 1].push([Index.getIndexString("0.001s", new Date(data[engine_num][i]["_time"])), data[engine_num][i]["_value"], null, null])
+                    new_data["points"].push([Index.getIndexString("0.001s", new Date(data[engine_num][i]["_time"])), data[engine_num][i]["_value"], null, null])
                 } else {
-                    new_data["points"][engine_num + 1][i] = data[engine_num][i]["_value"]
+                    new_data["points"][i] = data[engine_num][i]["_value"]
                 }
                 save_min = Math.min(save_min, data[engine_num][i]["_value"])
                 save_max = Math.max(save_max, data[engine_num][i]["_value"])

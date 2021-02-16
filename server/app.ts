@@ -19,24 +19,20 @@ const queryApi = client.getQueryApi(org)
 
 
 app.get('/', (req, res) => {
-  console.log("hi")
-  res.send('Hello World!')
+  res.send('Relativity Ramp Up Project')
 })
 
 app.get('/buckets', async (req, res) => {
-  console.log("buckets")
   const fluxQuery = 'buckets()'
   res.json(await queryApi.collectRows(fluxQuery));
 })
 
 app.get('/altitude', async (req, res) => {
-  console.log("altitude")
   const fluxQuery = 'from(bucket: "relativity-ramp-up") |> range(start: 0) |> filter(fn: (r) => r._measurement == "altitude" )'
   res.json(await queryApi.collectRows(fluxQuery));
 })
 
 app.get('/engines', async (req, res) => {
-  console.log("engines")
   // https://docs.influxdata.com/influxdb/cloud/query-data/flux/regular-expressions/
   
   // Memory allocation limit reached:
@@ -45,11 +41,11 @@ app.get('/engines', async (req, res) => {
   const fluxQuery = 'from(bucket: "relativity-ramp-up") |> range(start: 0) |> filter(fn: (r) => r._measurement =~ /engine-[1-3]$/ )'
   // res.json(await queryApi.collectRows(fluxQuery))
 
-  console.time("query")
+  // console.time("query")
   const data: { [key: string]: string | number }[] = await queryApi.collectRows(fluxQuery)
-  console.timeEnd("query")
+  // console.timeEnd("query")
 
-  console.time("data aggregation")
+  // console.time("data aggregation")
   const secIndex: number = 17;
   const secLength: number = 2;
   let result: { [key: string]: string | number | null }[][] = [[], [], []]
@@ -91,7 +87,7 @@ app.get('/engines', async (req, res) => {
       numEntries += 1
     }
   }
-  console.timeEnd("data aggregation")
+  // console.timeEnd("data aggregation")
   res.json(result)
 })
 
